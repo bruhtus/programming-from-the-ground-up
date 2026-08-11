@@ -6,7 +6,7 @@
 
 .section .data
 data_items:
-.long 3,67,34,222,45,75,54,34,44,33,22,11,66,255 # Each data is 4 bytes, ignore value on last item.
+.long 3,67,34,222,45,75,54,34,44,33,22,11,66,255 # Each data is 4 bytes.
 # References:
 # - https://stackoverflow.com/a/52866028
 # - http://alanclements.org/assembletime.html
@@ -23,12 +23,15 @@ movl $0, %edi
 movl data_items(,%edi,4), %ebx # Initialize ebx.
 movl $data_items, %ecx # Save the base address of data_items.
 addl $last_item_offset, %ecx # Add offset to the last item.
-
-start_loop:
 leal data_items(,%edi,4), %edx # Save current index address.
 cmpl %ecx, %edx
 je exit_loop
+
+start_loop:
 incl %edi
+leal data_items(,%edi,4), %edx # Save current index address.
+cmpl %ecx, %edx
+ja exit_loop # Jump to exit_loop if edx greater than ecx (unsigned).
 movl (%edx), %eax
 cmpl %ebx, %eax
 jbe start_loop # Jump back if eax less than or equal to ebx (unsigned).

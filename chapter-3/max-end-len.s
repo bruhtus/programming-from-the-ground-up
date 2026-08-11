@@ -5,7 +5,7 @@
 
 .section .data
 data_items:
-.long 3,67,34,222,45,75,54,34,44,33,22,11,66,255 # Ignore the last value.
+.long 3,67,34,222,45,75,54,34,44,33,22,11,66,255
 # References:
 # - https://stackoverflow.com/a/52866028
 # - http://alanclements.org/assembletime.html
@@ -17,13 +17,11 @@ _start:
 movl $0, %edi
 movl data_items(,%edi,4), %ebx
 movl $data_len - 1, %ecx # Save total index, index start from 0.
-cmpl %edi, %ecx
-je exit_loop
 
 start_loop:
-incl %edi
 cmpl %edi, %ecx
 je exit_loop
+incl %edi
 movl data_items(,%edi,4), %eax
 cmpl %ebx, %eax
 jbe start_loop # Jump back if eax less than or equal to ebx (unsigned).
