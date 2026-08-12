@@ -1,4 +1,4 @@
-# Because we didn't use the full 64-bit register, we can use the subset 32-bit
+# Because we did not use the full 64-bit register, we can use the subset 32-bit
 # register for some of the operations.
 #
 # References:
