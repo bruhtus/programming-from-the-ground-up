@@ -1,7 +1,7 @@
 # %edi: Hold the index of the data item being examined.
 # %ebx: Largest data item found.
 # %eax: Current data item.
-# %ecx: Total index (start from 0).
+# %ecx: Last index (start from 0).
 
 .section .data
 data_items:
@@ -16,7 +16,7 @@ data_len = (. - data_items) / 4 # Each data is 4 bytes (assemble time constant o
 _start:
 movl $0, %edi
 movl data_items(,%edi,4), %ebx
-movl $data_len - 1, %ecx # Save total index, index start from 0.
+movl $data_len - 1, %ecx # Save last index, index start from 0.
 
 start_loop:
 cmpl %edi, %ecx
