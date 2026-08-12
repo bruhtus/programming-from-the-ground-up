@@ -15,7 +15,7 @@ addl $8, %esp
 
 popl %ebx # Save the first function call return value in ebx.
 
-addl %eax, %ebx # final (in ebx) = second answer (in eax) + first answer (in ebx)
+addl %eax, %ebx # final (in ebx) = first answer (in ebx) + second answer (in eax)
 
 movl $1, %eax # Specify exit() system call in linux.
 int $0x80 # Interrupt with "terminate" instruction.

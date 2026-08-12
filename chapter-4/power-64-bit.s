@@ -22,7 +22,7 @@ addq $16, %rsp
 
 popq %rdi # Save the first function call return value in rdi.
 
-addl %eax, %edi # final (in rdi) = second answer (in rax) + first answer (in rdi)
+addl %eax, %edi # final (in rdi) = first answer (in rdi) + second answer (in rax)
 
 movl $60, %eax # Try using 32-bit value instead of 64-bit value.
 syscall
