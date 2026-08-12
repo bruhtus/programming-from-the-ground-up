@@ -39,7 +39,12 @@ syscall
 power:
 pushq %rbp # Save previous base pointer.
 movq %rsp, %rbp # Make the current stack pointer as the base pointer for this stack frame.
-subl $4, %esp # Allocate space for local variable.
+
+# Using subl instead of subq for rsp can cause the memory address for stack
+# pointer to be truncated to 32-bit address (like 0xffffddac) rather than
+# 64-bit address (like 0x7fffffffddac), which can cause problem when doing
+# push or pop that need 64-bit address.
+subq $4, %rsp # Allocate space for local variable.
 
 # Stack representation so far (36 bytes in stack):
 # 35
