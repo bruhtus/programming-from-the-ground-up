@@ -46,7 +46,8 @@ movq %rsp, %rbp # Make the current stack pointer as the base pointer for this st
 # push or pop that need 64-bit address.
 subq $4, %rsp # Allocate space for local variable.
 
-# Stack representation so far (36 bytes in stack):
+# Stack representation so far, with the following format
+# (Value) -> Address. Total size is 36 bytes in stack.
 # 35
 # 34
 # 33
@@ -70,7 +71,7 @@ subq $4, %rsp # Allocate space for local variable.
 # 15
 # 14
 # 13
-# 12 (return address)
+# 12 (return address) -> 8(%rbp)
 # 11
 # 10
 # 09
@@ -78,7 +79,7 @@ subq $4, %rsp # Allocate space for local variable.
 # 07
 # 06
 # 05
-# 04 (%rbp)
+# 04 (old %rbp) -> current %rbp or previous %rsp
 # 03
 # 02
 # 01

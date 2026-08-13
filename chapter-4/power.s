@@ -34,7 +34,8 @@ pushl %ebp # Save previous base pointer.
 movl %esp, %ebp # Make the current stack pointer as the base pointer for this stack frame.
 subl $4, %esp # Allocate space for local variable.
 
-# Stack representation so far (20 bytes in stack):
+# Stack representation so far, with the following format
+# (Value) -> Address. Total size is 20 bytes in stack.
 # 19
 # 18
 # 17
@@ -46,11 +47,11 @@ subl $4, %esp # Allocate space for local variable.
 # 11
 # 10
 # 09
-# 08 (return address)
+# 08 (return address) -> 4(%ebp)
 # 07
 # 06
 # 05
-# 04 (%ebp)
+# 04 (old %ebp) -> current %ebp or previous %esp
 # 03
 # 02
 # 01
