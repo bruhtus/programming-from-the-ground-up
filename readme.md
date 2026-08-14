@@ -22,3 +22,7 @@ This book using 32-bit assembly code, and there's some differences whether we
 are using this 32-bit assembly code on 32-bit system or 64-bit system.
 Reference:<br>
 https://stackoverflow.com/a/36901649
+
+## References
+
+- [x86_64 linux system call number](https://cigix.me/syscalls)
