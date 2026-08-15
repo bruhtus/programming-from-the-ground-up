@@ -26,3 +26,4 @@ https://stackoverflow.com/a/36901649
 ## References
 
 - [x86_64 linux system call number](https://cigix.me/syscalls)
+- [x86_64 common registers](https://math.hws.edu/eck/cs220/f22/registers.html)
