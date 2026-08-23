@@ -1,0 +1,19 @@
+32-bit assembly code:
+- Use open() syscall:
+  - %eax hold syscall number 5.
+  - %ebx hold address of the first character of filename (array of characters).
+  - %ecx hold read/write operation for the file.
+  - %edx hold permission for the file.
+- After using open() syscall, linux kernel return file descriptor in %eax.
+- Use read() syscall (number 3):
+  - %ebx hold file descriptor.
+  - %ecx hold address of buffer for storing data that is read.
+  - %edx hold the size of the buffer.
+  - %eax hold number of characters read or error code.
+- Use write() syscall (number 4):
+  - %ebx hold file descriptor.
+  - %ecx hold address of buffer filled with data to write.
+  - %edx hold the size of the buffer.
+  - %eax hold number of characters written or error code.
+- Use close() syscall (number 6):
+  - %ebx hold file descriptor.
