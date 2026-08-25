@@ -69,12 +69,12 @@ syscall
 cmpq $EOF, %rax # Number of bytes returned might exceed 32-bit, hence use 64-bit value.
 jle read_loop_end # End loop if we reach end of file (EOF) or got an error (negative value).
 
-movq $BUFFER_DATA, %rsi
-movq %rax, %rdi # Buffer length.
+movq %rax, %rsi # Bytes read.
+movq $BUFFER_DATA, %rdi
 call convert_to_uppercase # TODO: Find out why we convert more than last character in file.
 
 movq $BUFFER_SIZE, %rdx
-movq $BUFFER_DATA, %rsi # Pass return value convert_to_uppercase() to 2nd argument write() syscall.
+movq $BUFFER_DATA, %rsi
 movq ST_FD_OUT(%rbp), %rdi
 movl $SYS_WRITE, %eax
 syscall
@@ -112,19 +112,19 @@ syscall
 .equ LOWERCASE_Z, 'z' # Upper boundary of conversion.
 .equ UPPERCASE_CONVERT, 'A' - 'a' # How much we should add to the lowercase character to make it uppercase (65 - 97 = -32).
 
-# %rdi: Buffer length.
-# %rsi: Base address of buffer.
+# %rdi: Base address of buffer.
+# %rsi: Buffer length.
 convert_to_uppercase:
 pushq %rbp
 movq %rsp, %rbp
 
-cmpq $0, %rdi
+cmpq $0, %rsi
 je convert_loop_end # Exit function if buffer length is 0.
 
 movq $0, %r10 # Current character being read.
 
 convert_loop_begin:
-movb (%rsi,%r10,1), %r11b # Get the current character byte.
+movb (%rdi,%r10,1), %r11b # Get the current character byte.
 
 # Go to the next byte unless it is between or equal to 'a' and 'z'.
 cmpb $LOWERCASE_A, %r11b
@@ -133,11 +133,11 @@ cmpb $LOWERCASE_Z, %r11b
 ja next_byte # Maybe we can use unsigned comparison because there is no negative value here (?).
 
 addb $UPPERCASE_CONVERT, %r11b # Convert the character byte to uppercase.
-movb %r11b, (%rsi,%r10,1)
+movb %r11b, (%rdi,%r10,1)
 
 next_byte:
 incq %r10
-cmpq %r10, %rdi # Check if we are at the end of buffer.
+cmpq %r10, %rsi # Check if we are at the end of buffer.
 ja convert_loop_begin # Loop back if length above index (unsigned).
 
 convert_loop_end:
