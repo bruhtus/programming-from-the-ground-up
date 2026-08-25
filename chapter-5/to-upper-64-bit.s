@@ -69,11 +69,13 @@ syscall
 cmpq $EOF, %rax # Number of bytes returned might exceed 32-bit, hence use 64-bit value.
 jle read_loop_end # End loop if we reach end of file (EOF) or got an error (negative value).
 
+pushq %rax # No guarantee that %rax and %rsi won't be changed in callee function, so save bytes read on stack.
+
 movq %rax, %rsi # Bytes read.
 movq $BUFFER_DATA, %rdi
-call convert_to_uppercase # TODO: Find out why we convert more than last character in file.
+call convert_to_uppercase
 
-movq $BUFFER_SIZE, %rdx
+popq %rdx # Get bytes read.
 movq $BUFFER_DATA, %rsi
 movq ST_FD_OUT(%rbp), %rdi
 movl $SYS_WRITE, %eax
