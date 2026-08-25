@@ -1,5 +1,5 @@
-# Looks like there's a difference when using .equ and = (equal sign) to set
-# a number to a symbol. When using .equ, we can't edit the symbol value later
+# Looks like there is a difference when using .equ and = (equal sign) to set
+# a number to a symbol. When using .equ, we can not edit the symbol value later
 # on (immutable). When using = (equal sign), we can edit the symbol value later
 # on (mutable).
 # Reference: https://stackoverflow.com/a/28952568
@@ -84,7 +84,7 @@ movl $BUFFER_DATA, %ecx # Get address to read into.
 movl $BUFFER_SIZE, %edx
 int $LINUX_SYSCALL
 
-# How do read() know if it's end of file?
+# How do read() know if it is end of file?
 # Is read() reading the data until the end character (regardless filling
 # $BUFFER_SIZE or not), and then on the next reading will return end of file marker?
 cmpl $EOF, %eax # Check return value from read() syscall.
@@ -157,9 +157,9 @@ movb (%eax,%edi,1), %cl # Get the current character byte (?).
 # Reference for unsigned vs signed comparison:
 # https://stackoverflow.com/a/7510447
 cmpb $LOWERCASE_A, %cl
-jb next_byte # Maybe we can use unsigned comparison because there's no negative value here (?).
+jb next_byte # Maybe we can use unsigned comparison because there is no negative value here (?).
 cmpb $LOWERCASE_Z, %cl
-ja next_byte # Maybe we can use unsigned comparison because there's no negative value here (?).
+ja next_byte # Maybe we can use unsigned comparison because there is no negative value here (?).
 
 addb $UPPERCASE_CONVERT, %cl # Convert the byte to uppercase.
 movb %cl, (%eax,%edi,1)
