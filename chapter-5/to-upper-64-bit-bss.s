@@ -19,7 +19,7 @@
 .section .bss
 .equ BUFFER_SIZE, 500
 .lcomm BUFFER_DATA, BUFFER_SIZE
-.lcomm FD_IN, REG_SIZE # TODO: Try FD_IN and FD_OUT into one.
+.lcomm FD_IN, REG_SIZE
 .lcomm FD_OUT, REG_SIZE
 
 .section .text
