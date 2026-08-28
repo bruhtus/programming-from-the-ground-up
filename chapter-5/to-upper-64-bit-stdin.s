@@ -13,18 +13,18 @@
 .equ STDERR, 2
 
 .equ EOF, 0 # When we hit end of file with read() syscall.
-
-.section .bss
-.equ BUFFER_SIZE, 500
-.lcomm BUFFER_DATA, BUFFER_SIZE
+.equ BUFFER_SIZE, 500 # As long as the buffer size not exceeding 32-bit value, we can use long instruction (?).
 
 .section .text
 .globl _start
 _start:
+movq %rsp, %rbp
+
+subq $BUFFER_SIZE, %rsp
 
 read_loop_begin:
 movl $BUFFER_SIZE, %edx
-movq $BUFFER_DATA, %rsi
+leaq -BUFFER_SIZE(%rbp), %rsi # Put the start of buffer address.
 movl $STDIN, %edi
 movl $SYS_READ, %eax
 syscall
@@ -36,18 +36,18 @@ jle exit_err
 pushq %rax # Save total bytes read.
 
 movl %eax, %esi
-movq $BUFFER_DATA, %rdi
+leaq -BUFFER_SIZE(%rbp), %rdi
 call convert_to_uppercase
 
 movl %eax, %edx
-movq $BUFFER_DATA, %rsi
+leaq -BUFFER_SIZE(%rbp), %rsi
 movl $STDOUT, %edi
 movl $SYS_WRITE, %eax
 syscall
 
 popq %rbx
 decl %ebx # Get the last index from total bytes returned by read().
-movb BUFFER_DATA(,%rbx,1), %bl # Use 8-bit value from %rbx.
+movb -BUFFER_SIZE(%rbp,%rbx,1), %bl # Use 8-bit value from %rbx.
 
 cmpb $10, %bl # Exit if the last character is line feed (after pressing enter key).
 jne read_loop_begin
