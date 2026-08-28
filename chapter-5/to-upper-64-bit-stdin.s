@@ -39,13 +39,16 @@ movl %eax, %esi
 leaq -BUFFER_SIZE(%rbp), %rdi
 call convert_to_uppercase
 
-movl %eax, %edx
+# Store total bytes read back.
+# No guarantee %rax content won't be changed after function call.
+popq %rbx
+
+movl %ebx, %edx
 leaq -BUFFER_SIZE(%rbp), %rsi
 movl $STDOUT, %edi
 movl $SYS_WRITE, %eax
 syscall
 
-popq %rbx
 decl %ebx # Get the last index from total bytes returned by read().
 movb -BUFFER_SIZE(%rbp,%rbx,1), %bl # Use 8-bit value from %rbx.
 
