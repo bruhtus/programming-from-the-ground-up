@@ -18,6 +18,19 @@
 .equ EOF, 0 # When we hit end of file with read() syscall.
 .equ BUFFER_SIZE, 500 # As long as the buffer size not exceeding 32-bit value, we can use long instruction (?).
 
+.section .rodata
+argc_err_msg:
+.string "Need input and output files (no more, no less)\n"
+# The current address in section .rodata - the first address from message label.
+# Reference: https://stackoverflow.com/a/63928977
+.equ argc_err_msg_len, (. - argc_err_msg)
+input_fd_err_msg:
+.string "Failed to read input file\n"
+.equ input_fd_err_msg_len, (. - input_fd_err_msg)
+loop_err_msg:
+.string "Failure in loop mechanism\n"
+.equ loop_err_msg_len, (. - loop_err_msg)
+
 .equ ST_ARGV_0, REG_SIZE # Program name.
 .equ ST_ARGV_1, REG_SIZE + REG_SIZE # Input file name.
 .equ ST_ARGV_2, REG_SIZE + REG_SIZE + REG_SIZE # Output file name.
@@ -132,14 +145,29 @@ movl $SYS_EXIT, %eax
 syscall
 
 exit_argc_err:
+movl $argc_err_msg_len, %edx
+movq $argc_err_msg, %rsi
+movl $STDERR, %edi
+movl $SYS_WRITE, %eax
+syscall
 movl $42, %r12d
 jmp exit_err
 
 exit_input_fd_err:
+movl $input_fd_err_msg_len, %edx
+movq $input_fd_err_msg, %rsi
+movl $STDERR, %edi
+movl $SYS_WRITE, %eax
+syscall
 movl $1, %r12d
 jmp exit_err
 
 exit_loop_err:
+movl $loop_err_msg_len, %edx
+movq $loop_err_msg, %rsi
+movl $STDERR, %edi
+movl $SYS_WRITE, %eax
+syscall
 movl $69, %r12d
 jmp exit_err
 
