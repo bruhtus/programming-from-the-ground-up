@@ -49,4 +49,5 @@ function.
 ## References
 
 - [x86_64 linux system call number](https://cigix.me/syscalls)
+- [x86 (32-bit) linux system call number](https://x86.syscall.sh/)
 - [x86_64 common registers](https://math.hws.edu/eck/cs220/f22/registers.html)
