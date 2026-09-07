@@ -2,4 +2,4 @@
 !*/*.s
 !*/info
 
-test.dat
+*.dat
