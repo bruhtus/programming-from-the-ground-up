@@ -29,6 +29,11 @@ record_1_first_name:
 .byte 0
 .endr
 
+# Looks like write() and read() only able to handle ASCII characters.
+# So if we store this in a file, it will be the ASCII character of this number.
+# References:
+# - https://stackoverflow.com/q/36532752
+# - https://stackoverflow.com/a/13166463
 .long 45 # Age data.
 
 record_2:
