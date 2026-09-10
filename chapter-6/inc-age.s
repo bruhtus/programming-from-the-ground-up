@@ -1,4 +1,6 @@
 # Depends on:
+# - read-record.s
+# - write-record.s
 
 .include "common/linux-common.s"
 .include "common/record-def.s"
