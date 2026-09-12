@@ -52,7 +52,7 @@ record_2:
 .byte 0
 .endr
 
-.long 29
+.long 42
 
 record_3:
 .asciz "Derrick"
