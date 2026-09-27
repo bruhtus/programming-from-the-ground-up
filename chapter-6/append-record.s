@@ -137,7 +137,7 @@ cmpl $EOF, %eax
 jle read_stdin_end
 
 decl %eax
-movb (%eax,%esi,1), %r10b # Looks like we can use 32-bit register format in indirect addressing mode?
+movb (%esi,%eax,1), %r10b # Looks like we can use 32-bit register format in indirect addressing mode?
 
 # Maybe we can use the last character on the buffer as
 # indicator that the input exceed the buffer size?
