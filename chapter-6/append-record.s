@@ -19,6 +19,9 @@ write_err_msg:
 read_err_msg:
 .asciz "Read data failed (possibly input exceed characters limit)\n"
 .equ read_err_msg_len, (. - read_err_msg)
+input_required_err_msg:
+.asciz "Input can not be empty\n"
+.equ input_required_err_msg_len, (. - input_required_err_msg)
 # Because we have not learn character to number conversion,
 # we give a default value for age field.
 age:
@@ -62,7 +65,8 @@ movq $input_first_name, %rdi # Put the start of buffer address.
 call read_stdin
 
 cmpl $EOF, %eax
-jle prepare_read_err
+jl prepare_read_err
+je prepare_input_required_err
 
 read_last_name:
 movl $INPUT_LAST_NAME_SIZE, %esi
@@ -70,7 +74,8 @@ movq $input_last_name, %rdi
 call read_stdin
 
 cmpl $EOF, %eax
-jle prepare_read_err
+jl prepare_read_err
+je prepare_input_required_err
 
 read_address:
 movl $INPUT_ADDRESS_SIZE, %esi
@@ -78,7 +83,8 @@ movq $input_address, %rdi
 call read_stdin
 
 cmpl $EOF, %eax
-jle prepare_read_err
+jl prepare_read_err
+je prepare_input_required_err
 
 save_first_name:
 movl $(INPUT_FIRST_NAME_SIZE - 1), %edx # -1 is for null character.
@@ -172,6 +178,16 @@ movl $STDERR, %edi
 movl $SYS_WRITE, %eax
 syscall
 
+jmp exit_err
+
+prepare_input_required_err:
+movl $input_required_err_msg_len, %edx
+movl $input_required_err_msg, %esi
+movl $STDERR, %edi
+movl $SYS_WRITE, %eax
+syscall
+
+movl $1, %ebx
 jmp exit_err
 
 prepare_read_err:
