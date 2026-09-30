@@ -214,7 +214,7 @@ insert_data_begin:
 # Get current character.
 # Need this to mitigate limition x86 that can not move between memory address
 # directly.
-movb (%rdi), %r11b
+movb (%rdi,%r10,1), %r11b
 
 cmpb $0, %r11b
 je trim_trailing_space
@@ -225,25 +225,18 @@ jae trim_trailing_space # End if the index equal or greater than dedicated space
 cmpb $10, %r11b
 je trim_trailing_space # Skip enter character.
 
-movb %r11b, (%rsi)
-
+movb %r11b, (%rsi,%r10,1)
 incl %r10d
-
-# Sometimes the input can be less than the maximum capacity,
-# so increment the address to make it easier to trim trailing space
-# (regardless of the current index).
-incl %edi
-incl %esi
 
 jmp insert_data_begin
 
 trim_trailing_space:
-decl %esi # Check previous character.
+decl %r10d
 
-cmpb $32, (%rsi) # Check trailing space character.
+cmpb $32, (%rsi,%r10,1) # Check trailing space character.
 jne insert_data_end
 
-movb $0, (%rsi)
+movb $0, (%rsi,%r10,1)
 jmp trim_trailing_space
 
 insert_data_end:
