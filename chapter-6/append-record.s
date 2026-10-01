@@ -46,6 +46,9 @@ age:
 _start:
 movq %rsp, %rbp
 
+# If we edit the record file with text editor that will automatically add newline
+# character like vim with `fixendofline` option, the record file will have extra newline
+# character. Still not sure how to handle this.
 movl $0644, %edx
 movl $02101, %esi # O_APPEND, O_CREAT, O_WRONLY.
 movq $file_name, %rdi
