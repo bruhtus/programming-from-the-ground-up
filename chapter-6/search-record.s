@@ -19,6 +19,9 @@ open_err_msg:
 read_input_err_msg:
 .asciz "Failed to read input (possibly input exceed characters limit)\n"
 .equ read_input_err_msg_len, (. - read_input_err_msg)
+input_required_err_msg:
+.asciz "Input can not be empty\n"
+.equ input_required_err_msg_len, (. - input_required_err_msg)
 read_data_err_msg:
 .asciz "Failed to read data\n"
 .equ read_data_err_msg_len, (. - read_data_err_msg)
@@ -52,7 +55,8 @@ movq $input_search, %rdi
 call read_stdin
 
 cmpl $EOF, %eax
-jle prepare_read_input_err
+jl prepare_read_input_err
+je prepare_input_required_err
 
 .equ DATA_SCOPE, (record_buffer + RECORD_FIRST_NAME)
 
@@ -139,11 +143,17 @@ syscall
 
 jmp exit_err
 
-prepare_read_input_err:
-# Immediately print error message when the first character in input is enter.
-cmpl $10, input_search
-je print_read_input_err
+prepare_input_required_err:
+movl $input_required_err_msg_len, %edx
+movl $input_required_err_msg, %esi
+movl $STDERR, %edi
+movl $SYS_WRITE, %eax
+syscall
 
+movl $1, %ebx
+jmp exit_err
+
+prepare_read_input_err:
 # Get rid excess characters in standard input.
 # Reference:
 # https://web.archive.org/web/20170322030422/http://www.dreamincode.net/forums/topic/286248-nasm-linux-terminal-inputoutput-wint-80h/
