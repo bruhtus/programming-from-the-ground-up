@@ -253,10 +253,32 @@ trim_trailing_space:
 decl %r10d
 
 cmpb $32, (%rsi,%r10,1) # Check trailing space character.
-jne insert_data_end
+jne trim_leading_space
 
 movb $0, (%rsi,%r10,1)
 jmp trim_trailing_space
+
+trim_leading_space:
+movl $0, %r11d
+
+trim_leading_space_begin:
+cmpb $32, (%rsi,%r11,1) # Check trailing space character.
+jne trim_leading_space_end
+
+incl %r11d # Increment the index until no space character.
+jmp trim_leading_space_begin
+
+trim_leading_space_end:
+cmpl $0, %r11d # Means there is no leading space.
+je insert_data_end
+
+# Reference:
+# https://chessman7.substack.com/p/why-you-cant-directly-move-data-between
+movq %rsi, %rdi # Destination address.
+addq %r11, %rsi # Source address.
+movl $RECORD_SIZE, %ecx # Total bytes to copy.
+cld
+rep movsb # Copy memory until counter equal %rcx value - 1 (?).
 
 insert_data_end:
 movq %rbp, %rsp
