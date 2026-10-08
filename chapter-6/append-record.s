@@ -276,7 +276,7 @@ je insert_data_end
 # https://chessman7.substack.com/p/why-you-cant-directly-move-data-between
 movq %rsi, %rdi # Destination address.
 addq %r11, %rsi # Source address.
-movl $RECORD_SIZE, %ecx # Total bytes to copy.
+movl %edx, %ecx # Total bytes to copy.
 cld
 rep movsb # Copy memory until counter equal %rcx value - 1 (?).
 
