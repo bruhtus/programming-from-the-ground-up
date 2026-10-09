@@ -34,6 +34,7 @@ age:
 
 .section .bss
 .lcomm record_buffer, RECORD_SIZE
+.lcomm tmp_buffer, RECORD_SIZE # Placeholder for input data (with leading and trailing space).
 .lcomm input_first_name, INPUT_FIRST_NAME_SIZE
 .lcomm input_last_name, INPUT_LAST_NAME_SIZE
 .lcomm input_address, INPUT_ADDRESS_SIZE
@@ -228,6 +229,7 @@ pushq %rbp
 movq %rsp, %rbp
 
 movl $0, %r10d # Index current character.
+movq $tmp_buffer, %rax
 
 insert_data_begin:
 # Get current character.
@@ -236,47 +238,51 @@ insert_data_begin:
 movb (%rdi,%r10,1), %r11b
 
 cmpb $0, %r11b
-je trim_trailing_space
+je trim_leading_space
 
 cmpl %edx, %r10d
-jae trim_trailing_space # End if the index equal or greater than dedicated space (unsigned).
+jae trim_leading_space # End if the index equal or greater than dedicated space (unsigned).
 
 cmpb $10, %r11b
-je trim_trailing_space # Skip enter character.
+je trim_leading_space # Skip enter character.
 
-movb %r11b, (%rsi,%r10,1)
+movb %r11b, (%rax,%r10,1)
 incl %r10d
 
 jmp insert_data_begin
-
-trim_trailing_space:
-decl %r10d
-
-cmpb $32, (%rsi,%r10,1) # Check trailing space character.
-jne trim_leading_space
-
-movb $0, (%rsi,%r10,1)
-jmp trim_trailing_space
 
 trim_leading_space:
 movl $0, %r11d
 
 trim_leading_space_begin:
-cmpb $32, (%rsi,%r11,1) # Check trailing space character.
+cmpb $32, (%rax,%r11,1) # Check leading space character.
 jne trim_leading_space_end
 
 incl %r11d # Increment the index until no space character.
 jmp trim_leading_space_begin
 
 trim_leading_space_end:
-cmpl $0, %r11d # Means there is no leading space.
-je insert_data_end
+addq %r11, %rax # Skip leading space.
+subl %r11d, %r10d
+
+trim_trailing_space:
+decl %r10d # Get total characters without trailing space.
+
+cmpb $32, (%rax,%r10,1) # Check trailing space character.
+jne save_data
+
+jmp trim_trailing_space
+
+save_data:
+# Because the index start from 0 (e.g. index 0 until 4 for 5 characters).
+# So to use the index as total characters, we need to add the index by 1.
+incl %r10d
 
 # Reference:
 # https://chessman7.substack.com/p/why-you-cant-directly-move-data-between
 movq %rsi, %rdi # Destination address.
-addq %r11, %rsi # Source address.
-movl %edx, %ecx # Total bytes to copy.
+movq %rax, %rsi # Source address.
+movl %r10d, %ecx # Total bytes to copy.
 cld
 rep movsb # Copy memory until counter equal %rcx value - 1 (?).
 
