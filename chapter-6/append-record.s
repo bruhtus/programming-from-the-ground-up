@@ -13,6 +13,9 @@ file_name:
 open_err_msg:
 .asciz "Open file failed\n"
 .equ open_err_msg_len, (. - open_err_msg)
+lseek_err_msg:
+.asciz "lseek() failed\n"
+.equ lseek_err_msg_len, (. - lseek_err_msg)
 write_err_msg:
 .asciz "Write file failed\n"
 .equ write_err_msg_len, (. - write_err_msg)
@@ -47,11 +50,10 @@ age:
 _start:
 movq %rsp, %rbp
 
-# If we edit the record file with text editor that will automatically add newline
-# character like vim with `fixendofline` option, the record file will have extra newline
-# character. Still not sure how to handle this.
+subq $16, %rsp
+
 movl $0644, %edx
-movl $02101, %esi # O_APPEND, O_CREAT, O_WRONLY.
+movl $0102, %esi # O_CREAT, O_RDWR.
 movq $file_name, %rdi
 movl $SYS_OPEN, %eax
 syscall
@@ -59,8 +61,49 @@ syscall
 cmpl $0, %eax
 jl prepare_open_err
 
-pushq %rax
 .equ FD, REG_SIZE
+movl %eax, -FD(%rbp)
+
+# If we edit the record file with text editor that will automatically add newline
+# character like vim with `fixendofline` option, the record file will have extra
+# newline character. So check the character at the end of file, and if it is
+# newline character, move the position to the character before the newline and
+# replace the newline with the input data.
+movl $2, %edx # SEEK_SET (0), SEEK_CUR (1), SEEK_END (2).
+movl $0, %esi
+movl -FD(%rbp), %edi
+movl $SYS_LSEEK, %eax
+syscall
+
+cmpl $0, %eax # Means this is a new file.
+je read_first_name
+jl prepare_lseek_err
+
+decl %eax # Put the position to n - 1 so that we can get character at n position.
+movl %eax, -16(%rbp)
+
+movl $0, %edx # SEEK_SET (0), SEEK_CUR (1), SEEK_END (2).
+movl %eax, %esi
+movq -FD(%rbp), %rdi
+movl $SYS_LSEEK, %eax
+syscall
+
+movl $1, %edx
+movq $record_buffer, %rsi
+movl -FD(%rbp), %edi
+movl $SYS_READ, %eax
+syscall
+
+cmpb $10, record_buffer
+jne read_first_name
+
+# Because read() move the position to the next character, we need to put the position
+# back to n - 1 so that we can replace newline character with the input data.
+movl $0, %edx # SEEK_SET (0), SEEK_CUR (1), SEEK_END (2).
+movl -16(%rbp), %esi
+movq -FD(%rbp), %rdi
+movl $SYS_LSEEK, %eax
+syscall
 
 # Take input from stdin (press enter to finish input).
 read_first_name:
@@ -167,6 +210,17 @@ movl %eax, %ebx
 
 movl $open_err_msg_len, %edx
 movl $open_err_msg, %esi
+movl $STDERR, %edi
+movl $SYS_WRITE, %eax
+syscall
+
+jmp exit_err
+
+prepare_lseek_err:
+movl %eax, %ebx
+
+movl $lseek_err_msg_len, %edx
+movl $lseek_err_msg, %esi
 movl $STDERR, %edi
 movl $SYS_WRITE, %eax
 syscall
