@@ -3,7 +3,13 @@
 as_32=''
 ld_32=''
 
-[ -z "$2" ] && as_32='--32'
-[ -z "$2" ] && ld_32='-m elf_i386'
+[ -z "$2" ] && {
+  as_32='--32'
+  ld_32='-m elf_i386'
+}
 
-as $as_32 -g -o "$1.o" "$1.s" && ld $ld_32 -o "$1" "$1.o"
+{
+  [ ! -z "$2" ] && [ ! -z "$3" ]
+} && linker='--dynamic-linker /lib/ld-linux-x86-64.so.2 -lc'
+
+as $as_32 -g -o "$1.o" "$1.s" && ld $ld_32 -o "$1" $linker "$1.o"
