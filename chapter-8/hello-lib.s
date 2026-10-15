@@ -13,6 +13,9 @@
 # program's virtual memory. Finally, the dynamic linker replaces all
 # instances of the symbol in the program with the actual location of the
 # symbol in the library.
+#
+# To use x86 (32-bit) dynamic linker on arch linux, we can download package
+# lib32-glibc.
 
 .section .rodata
 hello_msg:
