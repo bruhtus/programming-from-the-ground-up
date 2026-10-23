@@ -159,7 +159,7 @@ movl %esp, %ebp
 
 movl ST_MEM_BLOCK(%ebp), %eax
 
-addl $HEADER_SIZE, %eax # Move to the start of actual memory.
+subl $HEADER_SIZE, %eax # Move to the start of header info.
 movl $AVAILABLE, HDR_AVAILABLE_OFFSET(%eax)
 
 movl %ebp, %esp
