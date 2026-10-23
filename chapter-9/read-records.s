@@ -40,10 +40,11 @@ call allocate_init
 
 pushl $RECORD_SIZE
 call allocate
-movl %eax, record_buffer_ptr
 
 cmpl $0, %eax # allocate() return 0 on failure.
 je record_exit
+
+movl %eax, record_buffer_ptr
 
 record_read_loop:
 pushl ST_INPUT_FD(%ebp)
