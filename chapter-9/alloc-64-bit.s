@@ -64,10 +64,10 @@ alloc_loop_begin:
 cmpq %r10, %rax
 je move_break_point
 
+movl HDR_SIZE_OFFSET(%rax), %r11d # Need this for next location calculation.
 cmpl $UNAVAILABLE, HDR_AVAILABLE_OFFSET(%rax)
 je next_location
 
-movl HDR_SIZE_OFFSET(%rax), %r11d
 cmpl %r11d, %edi
 jle alloc_here
 
