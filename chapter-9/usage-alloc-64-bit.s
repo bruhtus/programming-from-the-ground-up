@@ -11,6 +11,8 @@ newline_char:
 .section .data
 record_buffer_ptr:
 .quad 0
+reusable_buffer_ptr:
+.quad 0
 
 .equ ST_FD, REG_SIZE + REG_SIZE
 .equ ST_INPUT_FD, -REG_SIZE
@@ -52,9 +54,24 @@ syscall
 cmpl $RECORD_SIZE, %eax
 jne record_read_end
 
-movl $RECORD_FIRST_NAME_SIZE, %edx # 3rd argument.
-movq record_buffer_ptr, %rsi
-addq $RECORD_FIRST_NAME, %rsi
+allocate_for_address:
+movl $RECORD_ADDRESS_SIZE, %edi
+call alloc
+
+cmpq $0, %rax
+je alloc_err
+
+movq %rax, reusable_buffer_ptr
+
+movq record_buffer_ptr, %rsi # Source address.
+addq $RECORD_ADDRESS, %rsi
+movq reusable_buffer_ptr, %rdi # Destination address.
+movl $RECORD_ADDRESS_SIZE, %ecx # Total bytes to copy.
+cld
+rep movsb # Copy memory until counter equal %rcx value - 1 (?).
+
+movl $RECORD_ADDRESS_SIZE, %edx # 3rd argument.
+movq reusable_buffer_ptr, %rsi
 movl ST_OUTPUT_FD(%rbp), %edi
 movl $SYS_WRITE, %eax
 syscall
@@ -71,7 +88,49 @@ syscall
 cmpl $0, %eax
 jl write_err
 
-jmp record_read_loop
+movq reusable_buffer_ptr, %rdi
+call dealloc
+movl $0, reusable_buffer_ptr # Set the pointer to null.
+
+allocate_for_first_name:
+movl $RECORD_FIRST_NAME_SIZE, %edi
+call alloc
+
+cmpq $0, %rax
+je alloc_err
+
+movq %rax, reusable_buffer_ptr
+
+movq record_buffer_ptr, %rsi # Source address.
+addq $RECORD_FIRST_NAME, %rsi
+movq reusable_buffer_ptr, %rdi # Destination address.
+movl $RECORD_FIRST_NAME_SIZE, %ecx # Total bytes to copy.
+cld
+rep movsb # Copy memory until counter equal %rcx value - 1 (?).
+
+movl $RECORD_FIRST_NAME_SIZE, %edx # 3rd argument.
+movq reusable_buffer_ptr, %rsi
+movl ST_OUTPUT_FD(%rbp), %edi
+movl $SYS_WRITE, %eax
+syscall
+
+cmpl $0, %eax
+jl write_err
+
+movl $1, %edx # 3rd argument.
+movq $newline_char, %rsi
+movl ST_OUTPUT_FD(%rbp), %edi
+movl $SYS_WRITE, %eax
+syscall
+
+cmpl $0, %eax
+jl write_err
+
+movq reusable_buffer_ptr, %rdi
+call dealloc
+movl $0, reusable_buffer_ptr # Set the pointer to null.
+
+jmp record_read_end
 
 alloc_err:
 movl $69, %edi
