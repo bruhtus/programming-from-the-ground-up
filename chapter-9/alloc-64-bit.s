@@ -69,7 +69,8 @@ cmpl $UNAVAILABLE, HDR_AVAILABLE_OFFSET(%rax)
 je next_location
 
 cmpl %r11d, %edi
-jle alloc_here
+je alloc_here
+jl split_memory_block
 
 next_location:
 addq $HEADER_SIZE, %rax # Move the address at the beginning of actual memory location (after header?).
@@ -80,6 +81,26 @@ jmp alloc_loop_begin
 alloc_here:
 movl $UNAVAILABLE, HDR_AVAILABLE_OFFSET(%rax)
 addq $HEADER_SIZE, %rax
+
+jmp alloc_exit
+
+split_memory_block:
+movl $UNAVAILABLE, HDR_AVAILABLE_OFFSET(%rax)
+movl %edi, HDR_SIZE_OFFSET(%rax) # Set current memory block size to requested memory size.
+
+# Get the remaining memory size for next block.
+subl %edi, %r11d
+subl $HEADER_SIZE, %r11d
+
+# Get current allocation usable memory block address.
+addq $HEADER_SIZE, %rax
+pushq %rax
+
+leaq (%rax,%rdi,1), %rax # Start of next memory block.
+movl $AVAILABLE, HDR_AVAILABLE_OFFSET(%rax)
+movl %r11d, HDR_SIZE_OFFSET(%rax)
+
+popq %rax # Get back current allocation.
 
 jmp alloc_exit
 
