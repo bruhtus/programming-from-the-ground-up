@@ -13,6 +13,8 @@ record_buffer_ptr:
 .quad 0
 reusable_buffer_ptr:
 .quad 0
+last_name_buffer_ptr:
+.quad 0
 
 .equ ST_FD, REG_SIZE + REG_SIZE
 .equ ST_INPUT_FD, -REG_SIZE
@@ -125,6 +127,44 @@ syscall
 
 cmpl $0, %eax
 jl write_err
+
+allocate_for_last_name:
+movl $RECORD_LAST_NAME_SIZE, %edi
+call alloc
+
+cmpq $0, %rax
+je alloc_err
+
+movq %rax, last_name_buffer_ptr
+
+movq record_buffer_ptr, %rsi # Source address.
+addq $RECORD_LAST_NAME, %rsi
+movq last_name_buffer_ptr, %rdi # Destination address.
+movl $RECORD_LAST_NAME_SIZE, %ecx # Total bytes to copy.
+cld
+rep movsb # Copy memory until counter equal %rcx value - 1 (?).
+
+movl $RECORD_LAST_NAME_SIZE, %edx # 3rd argument.
+movq last_name_buffer_ptr, %rsi
+movl ST_OUTPUT_FD(%rbp), %edi
+movl $SYS_WRITE, %eax
+syscall
+
+cmpl $0, %eax
+jl write_err
+
+movl $1, %edx # 3rd argument.
+movq $newline_char, %rsi
+movl ST_OUTPUT_FD(%rbp), %edi
+movl $SYS_WRITE, %eax
+syscall
+
+cmpl $0, %eax
+jl write_err
+
+movq last_name_buffer_ptr, %rdi
+call dealloc
+movl $0, last_name_buffer_ptr # Set the pointer to null.
 
 movq reusable_buffer_ptr, %rdi
 call dealloc
