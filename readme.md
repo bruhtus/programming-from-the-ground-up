@@ -57,3 +57,5 @@ assembly](https://stackoverflow.com/a/28952085)
 (32-bit)](https://web.archive.org/web/20240405061436/https://www.linuxassembly.org/startup.html)
 - [Understanding the linux virtual memory manager
 (2003)](https://web.archive.org/web/20040201225429/http://www.csn.ul.ie/~mel/projects/vm/guide/html/understand/)
+- [DAV's Endian
+FAQ](https://web.archive.org/web/20060314113340/http://www.rdrop.com/~cary/html/endian_faq.html)
