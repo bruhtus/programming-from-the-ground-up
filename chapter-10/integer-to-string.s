@@ -1,4 +1,5 @@
-# Currently only able to convert positive number and 4 digit number (BUFFER_SIZE).
+# Currently only able to convert positive number and limited to how many
+# characters the stack can hold (?).
 # Still not sure how to convert negative number to string so that we can use
 # write() to print the number.
 #
@@ -12,7 +13,7 @@
 
 .section .rodata
 input:
-.long 6942
+.long 6942032
 newline_char:
 .ascii "\n"
 
@@ -28,15 +29,6 @@ movl $BUFFER_SIZE, %edx
 movq $conversion_buffer, %rsi
 movl input, %edi
 call integer_to_string
-
-movl $BUFFER_SIZE, %edx
-movq $conversion_buffer, %rsi
-movl $STDOUT, %edi
-movl $SYS_WRITE, %eax
-syscall
-
-cmpl $0, %eax
-jl exit_err
 
 movl $1, %edx
 movq $newline_char, %rsi
@@ -98,22 +90,48 @@ je copy_conversion
 jmp conversion_begin
 
 copy_conversion:
+movl %ecx, %r11d
+xorl %r8d, %r8d # Zero out r8 register.
+
+copy_conversion_begin:
 popq %rax
-movb %al, (%rsi)
+movb %al, (%rsi,%r8,1)
 
 decl %r10d
-decl %ecx
-incq %rsi # Point to next byte.
+decl %r11d
+incq %r8 # Point to next byte.
+
+cmpl $0, %r10d
+je flush_buffer
+
+# Either all the number has been copied or we exhaust the buffer limit.
+# Prevent buffer overflow (?).
+cmpl $0, %r11d
+je flush_buffer
+
+jmp copy_conversion_begin
+
+flush_buffer:
+pushq %rcx # For some reason, after write() syscall the %rcx register is messed up?
+
+movl $BUFFER_SIZE, %edx # %rsi already filled with buffer address.
+subl %r11d, %edx # Sometimes buffer might not be full, so get the buffer filled size.
+movl $STDOUT, %edi
+movl $SYS_WRITE, %eax
+syscall
+
+cmpl $0, %eax
+jl conversion_end
 
 cmpl $0, %r10d
 je conversion_end
 
-# Either all the number has been copied or we exhaust the buffer limit.
-# Prevent buffer overflow (?).
-cmpl $0, %ecx
-je conversion_end
+# Reset buffer state.
+popq %rcx
+movl %ecx, %r11d
+xorl %r8d, %r8d
 
-jmp copy_conversion
+jmp copy_conversion_begin
 
 conversion_end:
 movq %rbp, %rsp
