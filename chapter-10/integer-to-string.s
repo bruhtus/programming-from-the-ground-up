@@ -80,7 +80,10 @@ movl $0, %edx
 divl %r11d
 
 # We convert the last number into ASCII character.
-# Number 9 will be converted into ASCII character 57.
+# When ASCII character is used, the integer value of '0' is 48.
+# So 9 + '0' = 9 + 48 = 57 = '9' (in ASCII character).
+# Reference:
+# https://stackoverflow.com/a/24422248
 addl $'0', %edx
 
 # Put the result in the stack from last number to first number so that we can
