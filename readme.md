@@ -59,3 +59,4 @@ assembly](https://stackoverflow.com/a/28952085)
 (2003)](https://web.archive.org/web/20040201225429/http://www.csn.ul.ie/~mel/projects/vm/guide/html/understand/)
 - [DAV's Endian
 FAQ](https://web.archive.org/web/20060314113340/http://www.rdrop.com/~cary/html/endian_faq.html)
+- [Mike's x86-64 assembly notes](https://gist.github.com/mikesmullin/6259449)
