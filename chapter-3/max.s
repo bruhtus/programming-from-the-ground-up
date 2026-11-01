@@ -5,6 +5,15 @@
 .section .data
 data_items:
 # Why do we need to use .long and not .byte or .int?
+# We need to use .long because number in x86 need at least 4 bytes, which is
+# what .long provide (?). If we use .byte directive, that will result in a
+# single byte or, if one character equal one byte, would be a single
+# character, like ASCII character and not a number.
+#
+# As for .int directive, maybe it is a different directive that
+# did not have any correlation to number (?), at least accoding to GNU
+# assembler documentation:
+# https://sourceware.org/binutils/docs-2.25/as/Int.html
 .long 3,67,34,222,45,75,54,34,44,33,22,11,66,0 # End the data by 0 number.
 
 .section .text
