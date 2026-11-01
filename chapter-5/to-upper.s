@@ -58,7 +58,7 @@ open_fd_in:
 movl $SYS_OPEN, %eax # Call open() syscall.
 movl ST_ARGV_1(%ebp), %ebx # Put file name into %ebx.
 movl $O_RDONLY, %ecx
-movl $0444, %edx # Do we need this? Did not see any difference whether provide this or not in input file.
+movl $0444, %edx # If we provide flag O_CREAT or O_TMPFILE, linux will create the file with this permission. Otherwise, it is ignored.
 int $LINUX_SYSCALL
 
 store_fd_in:
