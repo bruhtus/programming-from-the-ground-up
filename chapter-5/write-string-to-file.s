@@ -12,10 +12,10 @@
 # - https://sourceware.org/binutils/docs-2.31/as/String.html#String
 .section .rodata
 message:
-.string "Some message!"
+.ascii "Some message!"
 # The current address in section .rodata - the first address from message label.
 # Reference: https://stackoverflow.com/a/63928977
-.equ message_len, (. - message - 1) # For some reason, the calculated length has 1 more character?
+.equ message_len, (. - message) # If we use .string or .asciz, there will be null terminator at the end of the string, something to keep in mind.
 output_filename:
 .string "some-file.txt"
 
